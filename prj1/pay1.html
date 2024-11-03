@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Payment Page</h2>
+    <form id="paymentForm">
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="form-group">
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" placeholder="Enter amount to pay" required>
+        </div>
+        <button type="button" class="button" onclick="completePayment()">Complete Payment</button>
+    </form>
+</div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getDatabase, ref, set, get, child ,update} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCT8axqLjDjypUjOeK4JdAxuabkBDE4oG0",
+        authDomain: "reward-point-86f51.firebaseapp.com",
+        databaseURL: "https://reward-point-86f51-default-rtdb.firebaseio.com/",
+        projectId: "reward-point-86f51",
+        storageBucket: "reward-point-86f51.appspot.com",
+        messagingSenderId: "749995309345",
+        appId: "1:749995309345:web:3a4bf1462f6fb64e45e660",
+        measurementId: "G-J9T0HVYM0P"
+    };
+    const app = initializeApp(firebaseConfig);
+
+
+    const database = getDatabase(app);
+    function completePayment() {
+    const phone = document.getElementById('phone').value;
+    const amount = document.getElementById('amount').value;
+
+    if (!phone || !amount) {
+      alert('Please fill in both fields.');
+      return;
+    }
+
+    
+    setTimeout(() => {
+      alert('Payment of $' + amount + ' completed successfully!');
+      updatePoints(phone); 
+    }, 1000);
+     
+  }
+  /*function updatePoints(phone) {
+    const userRef = ref(database, 'users/' + phone); 
+
+    userRef.transaction(currentData => {
+      if (currentData === null) {
+        return { points: 20 }; // Initialize with 20 points if the user does not exist
+      } else {
+        return { points: (currentData.points || 0) + 20 }; // Add 20 points to the existing points
+      }
+    }, (error, committed, snapshot) => {
+      if (error) {
+        console.error('Error updating points:', error.message);
+      } else if (!committed) {
+        console.log('Transaction not committed');
+      } else {
+        console.log('Points updated:', snapshot.val());
+        alert('Points updated successfully! New points: ' + snapshot.val().points);
+      }
+    });
+  }*/
+  async function updatePoints(phone) {
+        const userRef = ref(database, 'users/' + phone);
+
+        try {
+            const snapshot = await get(userRef);
+            let currentPoints = 0;
+
+            if (snapshot.exists()) {
+                currentPoints = snapshot.val().points || 0;
+            }
+
+            const newPoints = currentPoints + 20;
+            await update(userRef, { points: newPoints }); // Use update to only modify points
+
+            console.log('Points updated:', newPoints);
+            alert('Points updated successfully! New points: ' + newPoints);
+        } catch (error) {
+            console.error('Error updating points:', error.message);
+        }
+    }
+
+
+    window.completePayment = completePayment;
+ 
+ 
+</script>
+
+
+<!--<script type="module"  src="app2.js"></script>-->
+
+
+</body>
+</html>
